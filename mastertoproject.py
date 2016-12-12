@@ -8,6 +8,7 @@ import h5py
 import numpy
 import re
 import sys
+import traceback
 
 INTEGRATION_PARAMETERS = {'bgrflag': 1,
                           'cnbgr': 5,
@@ -174,9 +175,9 @@ def master_to_project(master_file, desired_scans, project_file, append=True,
                             project_progress += 1
                             progress_continue, holding = \
                                         progress_box.Update(project_progress)
-                            while wx.GetApp().Pending():
-                                wx.GetApp().Dispatch()
-                                wx.GetApp().Yield(True)
+#                            while wx.GetApp().Pending():
+#                                wx.GetApp().Dispatch()
+#                                wx.GetApp().Yield(True)
                         continue
                     
                     point_name = '%6.6i' % point_counter
@@ -313,8 +314,9 @@ def master_to_project(master_file, desired_scans, project_file, append=True,
                     try:
                         det_group.create_dataset('image_data',
                                                 data=read_head['image_data'][i],
-                                                compression='szip')
-                    except:
+                                                compression='gzip')
+                    except Exception as ex:
+                        print str(type(ex).__name__) + ": " + str(ex)
                         pass
                     # Integration parameters
                     int_labels = ['bgrflag', 'cnbgr', 'compress', 'cpow',
@@ -374,15 +376,16 @@ def master_to_project(master_file, desired_scans, project_file, append=True,
                         project_progress += 1
                         progress_continue, holding = \
                                     progress_box.Update(project_progress)
-                        while wx.GetApp().Pending():
-                            wx.GetApp().Dispatch()
-                            wx.GetApp().Yield(True)
-    except:
+#                        while wx.GetApp().Pending():
+#                            wx.GetApp().Dispatch()
+#                            wx.GetApp().Yield(True)
+    except Exception as ex:
         print 'Error generating file'
         if gui:
             progress_continue = False
             progress_box.Destroy()
-        raise
+        print traceback.print_stack()
+        raise ex
                         
     if gui:
         progress_continue = False
