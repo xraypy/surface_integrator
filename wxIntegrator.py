@@ -96,7 +96,7 @@ class Integrator(wx.Frame, wx.Notebook):
             
             # Window layout
             self.splitWindow = wx.lib.splitter.MultiSplitterWindow(self)
-            
+            self.splitWindow.SetBackgroundStyle(wx.BG_STYLE_COLOUR)
             self.treeBook = wx.Notebook(self.splitWindow,
                                         style=wx.SUNKEN_BORDER)
             self.treePanel = wx.Panel(self.treeBook)
@@ -111,7 +111,7 @@ class Integrator(wx.Frame, wx.Notebook):
             self.splitWindow.SetOrientation(wx.HORIZONTAL)
             self.splitWindow.AppendWindow(self.treeBook, 180)
             self.splitWindow.AppendWindow(self.dataWindow, 500)
-            self.splitWindow.AppendWindow(self.infoPanel)
+            self.splitWindow.AppendWindow(self.infoPanel,300)
             self.splitWindow.SetMinimumPaneSize(32)
             self.dataWindow.SetMinimumPaneSize(32)
             self.dataWindow.SplitHorizontally(self.graphPanel,
@@ -1641,9 +1641,9 @@ class Integrator(wx.Frame, wx.Notebook):
                         raise
                     integrateProgress += 1
                     self.statusBar.SetProgress(integrateProgress)
-                    while wx.GetApp().Pending():
-                        wx.GetApp().Dispatch()
-                        wx.GetApp().Yield(True)
+#                    while wx.GetApp().Pending():
+#                        wx.GetApp().Dispatch()
+#                        wx.GetApp().Yield(True)
                 self.integrateContinue = False
                 self.hdfTree.SetFocus()
                 if self.hdfTree.GetSelection() == ofMe:
@@ -1784,9 +1784,9 @@ class Integrator(wx.Frame, wx.Notebook):
                     raise
                 integrateProgress += 1
                 self.statusBar.SetProgress(integrateProgress)
-                while wx.GetApp().Pending():
-                    wx.GetApp().Dispatch()
-                    wx.GetApp().Yield(True)
+#                while wx.GetApp().Pending():
+#                    wx.GetApp().Dispatch()
+#                    wx.GetApp().Yield(True)
             self.integrateContinue = False
             self.hdfTree.SetFocus()
             if self.hdfTree.GetSelection() == ofMe and itemData is not None:
@@ -2268,8 +2268,8 @@ class Integrator(wx.Frame, wx.Notebook):
                 if eval(self.hdfObject[itemData]['det_0']['pixel_map_changed']):
                     self.hdfObject[itemData]['det_0']['pixel_map_changed'] = \
                                                                         'False'
-                    #self.hdfObject.write_point(self.hdfObject[itemData])
-                    #self.hdfObject.read_point(itemData)
+                    self.hdfObject.write_point(self.hdfObject[itemData])
+                    self.hdfObject.read_point(itemData)
                 if self.keepMaxToggle.GetValue():
                     self.hdfObject[itemData]['det_0']['image_max'] = \
                             str(self.imageMaxField.GetValue())
