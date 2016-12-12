@@ -185,12 +185,13 @@ def read_image(file):
         # While numpy free, this seems to only be able to handle 1D arrays:
         #arr = array.array('L', im.tostring())
         # So we'll still have to use numpy for this
-        if im.mode == "I": 
-            arr = num.fromstring(im.tostring(), dtype='int32')
-        elif im.mode == "I;16": 
-            arr = num.fromstring(im.tostring(), dtype='int16')
-        else: print "image mode not supported"
-        arr.shape = (im.size[1], im.size[0])
+#         if im.mode == "I": 
+#             arr = num.fromstring(im.tostring(), dtype='int32')
+#         elif im.mode == "I;16": 
+#             arr = num.fromstring(im.tostring(), dtype='int16')
+#         else: print "image mode not supported"
+#         arr.shape = (im.size[1], im.size[0])
+        arr = num.array(im)
         return arr
     except:
         print "Error reading file: %s" % file
@@ -277,7 +278,9 @@ def spec_to_hdf(args):
     if spec_dir == '':
         spec_dir = '.'
     spec_name = os.path.split(input)[-1]
-    image_dir = spec_dir + '\\images\\%s\\' % spec_name[:-4]
+    print spec_name
+#    image_dir = spec_dir + '/images/%s/' % spec_name[:-4]
+    image_dir = str(os.path.join(spec_dir, 'images',  '%s' % spec_name[:-4]))
     this_file = open(input)
     lines = this_file.readlines()
     this_file.close()
@@ -542,11 +545,13 @@ def spec_to_hdf(args):
                         except:
                             pass'''
         # Set the image directory for the scan
-        this_dir = image_dir + 'S%03d\\' % scan['index']
+#        this_dir = image_dir + 'S%03d/' % scan['index']
+        this_dir = os.path.join(image_dir, 'S%03d' % scan['index'])
         # Print the directory (to give users a sense of progress made)
         print this_dir
         if os.path.isdir(this_dir):
             image_data = []
+            
             for image_file in os.listdir(this_dir):
                 try:
                     image_value = None
@@ -568,7 +573,7 @@ def spec_to_hdf(args):
                 except KeyError:
                     pass
                 scan_group.create_dataset('image_data', data=image_data,
-                                         compression='szip')
+                                         compression='gzip')
     
     master_file.close()
     
@@ -613,11 +618,15 @@ class FileLock(object):
             an exception.
         """
         start_time = time.time()
+        import getpass
+        userName = getpass.getuser()
+        import platform
+        computerName = platform.uname()[1]
         while True:
             try:
                 self.fd = os.open(self.lockfile, os.O_CREAT|os.O_EXCL|os.O_RDWR)
-                os.write(self.fd, os.environ['USERNAME'] + '\n')
-                os.write(self.fd, os.environ['COMPUTERNAME'] + '\n')
+                os.write(self.fd, userName + '\n')
+                os.write(self.fd, computerName + '\n')
                 os.write(self.fd, time.ctime(time.time()))
                 break;
             except OSError as e:
