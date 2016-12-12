@@ -38,11 +38,15 @@ class FileLock(object):
             an exception.
         """
         start_time = time.time()
+        import getpass
+        userName = getpass.getuser()
+        import platform
+        computerName = platform.uname()[1]
         while True:
             try:
                 self.fd = os.open(self.lockfile, os.O_CREAT|os.O_EXCL|os.O_RDWR)
-                os.write(self.fd, os.environ['USERNAME'] + '\n')
-                os.write(self.fd, os.environ['COMPUTERNAME'] + '\n')
+                os.write(self.fd, userName + '\n')
+                os.write(self.fd, computerName + '\n')
                 os.write(self.fd, time.ctime(time.time()))
                 break;
             except OSError as e:
