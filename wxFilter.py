@@ -16,7 +16,7 @@ import wx.lib.agw.ultimatelistctrl as ULC
 import file_locker
 import filtertools as ft
 import mastertoproject as mtp
-
+import traceback
 
 POSSIBLE_ATTRIBUTES = ['bad_pixel_map', 'beam_slits', 'bgrflag',
                               'cnbgr', 'cpow', 'ctan', 'cwidth',
@@ -559,14 +559,14 @@ class filterGUI(wx.Frame):
         
         try:
             print 'Attempting to lock file...'
-            while wx.GetApp().Pending():
-                wx.GetApp().Dispatch()
-                wx.GetApp().Yield(True)
+#            while wx.GetApp().Pending():
+#                wx.GetApp().Dispatch()
+#                wx.GetApp().Yield(True)
             self.filterLock.acquire()
             print 'Lock acquired'
-            while wx.GetApp().Pending():
-                wx.GetApp().Dispatch()
-                wx.GetApp().Yield(True)
+#            while wx.GetApp().Pending():
+#                wx.GetApp().Dispatch()
+#                wx.GetApp().Yield(True)
         except file_locker.FileLockException as e:
             print 'Error: ' + str(e)
             return
@@ -716,19 +716,19 @@ class filterGUI(wx.Frame):
                         if self.projectDict[entry[0]][entry[1]] is not None:
                             item = self.dataTable.GetItemCount()-1
                             self.dataTable.SetItemTextColour(item,
-                                                             wx.Color(128,
+                                                             wx.Colour(128,
                                                                       128,
                                                                       128))
                     except:
                         pass
         else:
             for entry in self.scanItems:
-                self.dataTable.Append(entry)
+                self.dataTable.Append(entry[0:9])
                 try:
                     if self.projectDict[entry[0]][entry[1]] is not None:
                         item = self.dataTable.GetItemCount()-1
                         self.dataTable.SetItemTextColour(item,
-                                                         wx.Color(128,
+                                                         wx.Colour(128,
                                                                   128,
                                                                   128))
                 except:
@@ -892,7 +892,7 @@ class filterGUI(wx.Frame):
             else:
                 self.projectDict[specName] = {}
                 self.projectDict[specName][scanNumber] = self.attrDict.copy()
-            self.dataTable.SetItemTextColour(item, wx.Color(128, 128, 128))
+            self.dataTable.SetItemTextColour(item, wx.Colour(128, 128, 128))
             item = self.dataTable.GetNextSelected(item)
         self.newProjectTree.DeleteAllItems()
         projectRoot = \
@@ -918,7 +918,7 @@ class filterGUI(wx.Frame):
             else:
                 self.projectDict[specName] = {}
                 self.projectDict[specName][scanNumber] = self.attrDict.copy()
-            self.dataTable.SetItemTextColour(item, wx.Color(128, 128, 128))
+            self.dataTable.SetItemTextColour(item, wx.Colour(128, 128, 128))
             item = self.dataTable.GetNextItem(item)
         self.newProjectTree.DeleteAllItems()
         projectRoot = \
@@ -1011,9 +1011,9 @@ class filterGUI(wx.Frame):
             plockFile = file_locker.FileLock(save_dialog.GetPath())
             try:
                 print 'Attempting to lock files...'
-                while wx.GetApp().Pending():
-                    wx.GetApp().Dispatch()
-                    wx.GetApp().Yield(True)
+               # while wx.GetApp().Pending():
+               #     wx.GetApp().Dispatch()
+               #     wx.GetApp().Yield(True)
                 mlockFile.acquire()
                 plockFile.acquire()
                 print 'Locks acquired'
@@ -1026,8 +1026,10 @@ class filterGUI(wx.Frame):
                 mtp.master_to_project(self.filterFileName,
                                       self.projectDict,
                                       out_file, append=False, gui=True)
-            except:
+            except Exception as ex:
                 print 'Error generating project file'
+                traceback.print_stack()
+                print ex
                 mlockFile.release()
                 plockFile.release()
                 print 'Locks released'
@@ -1054,9 +1056,9 @@ class filterGUI(wx.Frame):
             plockFile = file_locker.FileLock(save_dialog.GetPath())
             try:
                 print 'Attempting to lock files...'
-                while wx.GetApp().Pending():
-                    wx.GetApp().Dispatch()
-                    wx.GetApp().Yield(True)
+               # while wx.GetApp().Pending():
+               #     wx.GetApp().Dispatch()
+               #     wx.GetApp().Yield(True)
                 mlockFile.acquire()
                 plockFile.acquire()
                 print 'Locks acquired'
