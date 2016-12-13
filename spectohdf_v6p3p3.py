@@ -280,7 +280,9 @@ def spec_to_hdf(args):
     spec_name = os.path.split(input)[-1]
     print spec_name
 #    image_dir = spec_dir + '/images/%s/' % spec_name[:-4]
-    image_dir = str(os.path.join(spec_dir, 'images',  '%s' % spec_name[:-4]))
+#    image_dir = str(os.path.join(spec_dir, 'images',  '%s' % spec_name[:-4]))
+    spec_name_base = os.path.splitext(spec_name)[0]
+    image_dir = str(os.path.join(spec_dir, 'images',  '%s' % spec_name_base))
     this_file = open(input)
     lines = this_file.readlines()
     this_file.close()
