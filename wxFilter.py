@@ -16,7 +16,9 @@ import wx.lib.agw.ultimatelistctrl as ULC
 import file_locker
 import filtertools as ft
 import mastertoproject as mtp
+from instrumentconfig import InstrumentConfiguration
 import traceback
+from xml.etree.ElementTree import ParseError
 
 POSSIBLE_ATTRIBUTES = ['bad_pixel_map', 'beam_slits', 'bgrflag',
                               'cnbgr', 'cpow', 'ctan', 'cwidth',
@@ -84,6 +86,9 @@ class filterGUI(wx.Frame):
         
         # The project to be built
         self.projectDict = {}
+        
+        # Instrument configuration file.  Map name of parameter coming from the Spec file
+        self.instConfigFile = InstrumentConfiguration(None)
         
         # Make the window
         self.fullWindow = wx.Panel(self)
@@ -420,6 +425,7 @@ class filterGUI(wx.Frame):
         self.fileMenu = wx.Menu()
         self.loadFile = self.fileMenu.Append(-1, 'Load HDF file...')
         self.loadAttr = self.fileMenu.Append(-1, 'Load attribute file...')
+        self.loadInstConfig = self.fileMenu.Append(-1, 'Load Inst Config file...')
         self.exitWindow = self.fileMenu.Append(-1, 'Exit')
         
         self.menuBar.Append(self.fileMenu, 'File')
@@ -433,6 +439,7 @@ class filterGUI(wx.Frame):
         # Menu bindings
         self.Bind(wx.EVT_MENU, self.loadHDF, self.loadFile)
         self.Bind(wx.EVT_MENU, self.loadAttributes, self.loadAttr)
+        self.Bind(wx.EVT_MENU, self.loadInstrumentConfig, self.loadInstConfig)
         self.Bind(wx.EVT_MENU, self.onClose, self.exitWindow)
         
         # Button bindings
@@ -542,6 +549,25 @@ class filterGUI(wx.Frame):
         loadDialog.Destroy()
         self.dataTable.SetFocus()
     
+    # Load the instrumentConfigFile
+    def loadInstrumentConfig(self, event):
+        loadDialog = wx.FileDialog(self, message='Load Instrument Config file...',
+                                   defaultDir=os.getcwd(), defaultFile='',
+                                   wildcard='Master files (*.xml)|*.xml|'+\
+                                             'All files (*.*)|*',
+                                   style=wx.OPEN)
+        if loadDialog.ShowModal() == wx.ID_OK:
+            if not os.path.isfile(loadDialog.GetPath()):
+                print 'Error: File does not exist'
+                return
+            
+        try:
+            self.instConfigFile = InstrumentConfiguration(loadDialog.GetPath())
+        except ParseError as pe:
+                print pe
+        loadDialog.Destroy()
+        
+        
     # Reset all filters and read in an HDF file
     def readFile(self, event):
         '''Read the HDF file self.filterFile, building the 
@@ -1025,7 +1051,8 @@ class filterGUI(wx.Frame):
             try:
                 mtp.master_to_project(self.filterFileName,
                                       self.projectDict,
-                                      out_file, append=False, gui=True)
+                                      out_file, append=False, gui=True,
+                                      instConfig=self.instConfigFile)
             except Exception as ex:
                 print 'Error generating project file'
                 traceback.print_stack()
@@ -1070,7 +1097,8 @@ class filterGUI(wx.Frame):
             try:
                 mtp.master_to_project(self.filterFileName,
                                       self.projectDict,
-                                      out_file, append=True, gui=True)
+                                      out_file, append=True, gui=True,
+                                      instConfig = self.instConfigFile)
             except:
                 print 'Error saving to project file'
                 mlockFile.release()
