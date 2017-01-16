@@ -74,7 +74,7 @@ def read_pixel_map(fname):
         return []
 
 def master_to_project(master_file, desired_scans, project_file, append=True, 
-                      gui=False):
+                      gui=False, instConfig=None):
     '''Convert a list of scans from a master file
         (potentially with some listed attributes)
         to a project file.
@@ -209,26 +209,35 @@ def master_to_project(master_file, desired_scans, project_file, append=True,
                     
                     # The angles
                     ang_labels = ['chi', 'del', 'eta', 'mu', 'nu', 'phi']
+                    mapped_ang_labels = instConfig.readAngleLabels()
                     point_group.create_dataset('angle_labels', data=ang_labels)
                     pang_labels = ['chi', 'TwoTheta', 'theta',
                                    'Psi', 'Nu', 'phi']
+                    mapped_pang_labels = instConfig.readPseudoAngleLabels()
                     ang_values = []
                     for j in range(6):
-                        ang_lbl = ang_labels[j]
-                        pang_lbl = pang_labels[j]
-                        if ang_lbl in read_head['point_labs']:
-                            ang_pos = list(\
-                                        read_head['point_labs']).index(ang_lbl)
-                            ang_val = read_head['point_data'][i][ang_pos]
-                        elif pang_lbl in read_head['point_labs']:
-                            ang_pos = list(\
-                                        read_head['point_labs']).index(pang_lbl)
-                            ang_val = read_head['point_data'][i][ang_pos]
-                        else:
-                            ang_pos = list(\
-                                        read_head['param_labs']).index(pang_lbl)
-                            ang_val = read_head['param_data'][ang_pos]
-                        ang_values.append(ang_val)
+                        try:
+                            ang_lbl = ang_labels[j]
+                            pang_lbl = pang_labels[j]
+                            m_ang_lbl = mapped_ang_labels[j]
+                            m_pang_lbl = mapped_pang_labels[j]
+                            if m_ang_lbl in read_head['point_labs']:
+                                ang_pos = list(\
+                                            read_head['point_labs']).index(m_ang_lbl)
+                                ang_val = read_head['point_data'][i][ang_pos]
+                            elif m_pang_lbl in read_head['point_labs']:
+                                ang_pos = list(\
+                                            read_head['point_labs']).index(m_pang_lbl)
+                                ang_val = read_head['point_data'][i][ang_pos]
+                            else:
+                                ang_pos = list(\
+                                            read_head['param_labs']).index(m_pang_lbl)
+                                ang_val = read_head['param_data'][ang_pos]
+                            ang_values.append(ang_val)
+                        except Exception as ex:
+                            traceback.print_exc()
+                            print ex
+                            raise ex
                     point_group.create_dataset('angle_values', data=ang_values)
                     
                     # The real-space lattice followed by the recip-space lattice
@@ -297,6 +306,13 @@ def master_to_project(master_file, desired_scans, project_file, append=True,
                     
                     # The scaler values
                     sclr_lbls = read_head['point_labs'][split_index:]
+                    mapped_scaler_lbls = instConfig.readScalerLabels()
+                    unmapped_scaler_lbls = instConfig.readDefScalerLabels()
+                    numScalers = len(sclr_lbls)
+                    for j in range(numScalers):
+                        if sclr_lbls[j] in mapped_scaler_lbls:
+                            indx = mapped_scaler_lbls.index(sclr_lbls[j])
+                            sclr_lbls[j] = unmapped_scaler_lbls[indx]
                     point_group.create_dataset('scaler_labels', data=sclr_lbls)
                     sclr_values = read_head['point_data'][i][split_index:]
                     point_group.create_dataset('scaler_values',
