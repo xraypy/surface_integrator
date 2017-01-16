@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Sample instrument configuration to define names of parameters in spec & therefore the master file 
+     so that they can be translated into names used in the project file. -->
+<instConfigSurfaceIntegrator xmlns="https://github.com/xraypy/surface_integrator/instConfig">   
+<angle_labels>
+    <!-- allow remapping of angles.  Program was coded for names use at Sector 13. -->
+    <!-- Note the tag (i.e. <chi> is the angle name used in the code.  The value encapsulated by the 
+         tag is the name of the angle as given in the spec file for a particular instrument. This 
+         example describes for Sector 13 so the value equals the tag.  In general, this may not 
+         be equal for a given instrument.  Sect 33ID for instance will have <del>delta</del> -->
+	<chi>chi</chi>
+	<del>del</del>
+	<eta>eta</eta>
+	<mu>mu</mu>
+	<nu>nu</nu>
+	<phi>phi</phi>
+</angle_labels>
+<pangle_labels>
+    <!-- allow remapping of angles.  Program was coded for names use at Sector 13. -->
+    <!-- Note the tag (i.e. <chi> is the angle name used in the code.  The value encapsulated by the 
+         tag is the name of the angle as given in the spec file for a particular instrument. This 
+         example describes for Sector 13 so the value equals the tag.  In general, this may not 
+         be equal for a given instrument.  Sect 33ID for instance will have <del>delta</del> -->
+	<chi>chi</chi>
+	<TwoTheta>TwoTheta</TwoTheta>
+	<theta>theta</theta>
+	<Psi>Psi</Psi>
+	<Nu>Nu</Nu>
+	<phi>phi</phi>
+</pangle_labels>
+<scaler_labels>
+	<io>io</io>
+	<transm>trans</transm>
+	<Seconds>Seconds</Seconds>
+	<corrdet>corrdet</corrdet>
+	<filters>filters</filters>
+</scaler_labels>
+</instConfigSurfaceIntegrator>
