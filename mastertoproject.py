@@ -225,6 +225,10 @@ def master_to_project(master_file, desired_scans, project_file, append=True,
                                 ang_pos = list(\
                                             read_head['point_labs']).index(m_ang_lbl)
                                 ang_val = read_head['point_data'][i][ang_pos]
+                            elif m_ang_lbl in read_head['param_labs']:
+                                ang_pos = list(\
+                                               read_head['param_labs']).index(m_ang_lbl)
+                                ang_val = read_head['param_data'][ang_pos]
                             elif m_pang_lbl in read_head['point_labs']:
                                 ang_pos = list(\
                                             read_head['point_labs']).index(m_pang_lbl)
